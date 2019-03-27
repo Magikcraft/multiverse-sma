@@ -39,7 +39,7 @@
     },
     "dependencies": {
         "@magikcraft/fs": "^1.0.0",
-        "@magikcraft/log": "^1.0.1",
+        "@magikcraft/log": "^1.0.2",
         "@magikcraft/server": "0.0.0"
     }
 }
