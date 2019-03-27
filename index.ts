@@ -2,6 +2,7 @@ import * as fs from '@magikcraft/fs'
 import { Logger } from '@magikcraft/log'
 import * as server from '@magikcraft/server'
 import * as utils from 'utils'
+import { Queue } from './queue'
 
 const log = Logger(__filename)
 
@@ -10,6 +11,7 @@ const log = Logger(__filename)
 class MultiverseClass {
     private multiversePlugin: MultiverseCorePlugin
     private worldmanager: WorldManager
+    private queue: Queue
     constructor() {
         this.multiversePlugin = server.getPlugin('Multiverse-Core')
         if (!this.multiversePlugin) {
@@ -18,6 +20,7 @@ class MultiverseClass {
             )
         }
         this.worldmanager = this.multiversePlugin.getMVWorldManager()
+        this.queue = new Queue()
     }
 
     public async destroyWorld(worldName: string) {
@@ -51,7 +54,9 @@ class MultiverseClass {
             log('err', err)
             throw new Error(err)
         }
-        server.executeCommand(`mv import ${worldName} normal`)
+        await this.queue.queueOperation(() =>
+            server.executeCommand(`mv import ${worldName} normal`)
+        )
         world = utils.world(worldName)
         if (!world) {
             err = `Failed to import world ${worldName}`

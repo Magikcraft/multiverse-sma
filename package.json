@@ -1,6 +1,6 @@
 {
     "name": "@magikcraft/multiverse",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "Multiverse support for Scriptcraft SMA",
     "keywords": [
         "scriptcraft",
@@ -38,7 +38,7 @@
         "prettier": "^1.16.4"
     },
     "dependencies": {
-        "@magikcraft/fs": "^1.0.0",
+        "@magikcraft/fs": "^1.0.1",
         "@magikcraft/log": "^1.0.2",
         "@magikcraft/server": "0.0.0"
     }

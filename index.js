@@ -39,6 +39,7 @@ var fs = require("@magikcraft/fs");
 var log_1 = require("@magikcraft/log");
 var server = require("@magikcraft/server");
 var utils = require("utils");
+var queue_1 = require("./queue");
 var log = log_1.Logger(__filename);
 // https://github.com/Multiverse/Multiverse-Core
 var MultiverseClass = /** @class */ (function () {
@@ -48,6 +49,7 @@ var MultiverseClass = /** @class */ (function () {
             throw new Error('Multiverse-Core plugin not found! Is it installed on this server?');
         }
         this.worldmanager = this.multiversePlugin.getMVWorldManager();
+        this.queue = new queue_1.Queue();
     }
     MultiverseClass.prototype.destroyWorld = function (worldName) {
         return __awaiter(this, void 0, void 0, function () {
@@ -74,26 +76,33 @@ var MultiverseClass = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             var world, err;
             return __generator(this, function (_a) {
-                log("Importing world " + worldName + "...");
-                world = utils.world(worldName);
-                if (world) {
-                    log("World " + worldName + " already imported.");
-                    return [2 /*return*/, world];
+                switch (_a.label) {
+                    case 0:
+                        log("Importing world " + worldName + "...");
+                        world = utils.world(worldName);
+                        if (world) {
+                            log("World " + worldName + " already imported.");
+                            return [2 /*return*/, world];
+                        }
+                        if (!this.worldExistsOnDisk(worldName)) {
+                            err = "Cannot import world " + worldName + ": file not found";
+                            log('err', err);
+                            throw new Error(err);
+                        }
+                        return [4 /*yield*/, this.queue.queueOperation(function () {
+                                return server.executeCommand("mv import " + worldName + " normal");
+                            })];
+                    case 1:
+                        _a.sent();
+                        world = utils.world(worldName);
+                        if (!world) {
+                            err = "Failed to import world " + worldName;
+                            log('err', err);
+                            throw new Error(err);
+                        }
+                        log("Successfully imported world " + worldName);
+                        return [2 /*return*/, new Promise(function (resolve) { return setTimeout(function () { return resolve(world); }, 1); })];
                 }
-                if (!this.worldExistsOnDisk(worldName)) {
-                    err = "Cannot import world " + worldName + ": file not found";
-                    log('err', err);
-                    throw new Error(err);
-                }
-                server.executeCommand("mv import " + worldName + " normal");
-                world = utils.world(worldName);
-                if (!world) {
-                    err = "Failed to import world " + worldName;
-                    log('err', err);
-                    throw new Error(err);
-                }
-                log("Successfully imported world " + worldName);
-                return [2 /*return*/, new Promise(function (resolve) { return setTimeout(function () { return resolve(world); }, 1); })];
             });
         });
     };
